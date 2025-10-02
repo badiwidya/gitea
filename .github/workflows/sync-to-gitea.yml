@@ -20,7 +20,8 @@ jobs:
           GIT_EMAIL: ${{ vars.GIT_EMAIL }}
       - name: Push to Gitea
         run: |
-          git remote add gitea https://${GIT_NAME}:${GITEA_TOKEN}@gitea-lab.ddns.net/badiwidya/gitea.git
+          git remote add gitea https://${GIT_NAME}:${GITEA_TOKEN}@gitea-lab.ddns.net/kdjk4/gitea.git
           git push --force gitea main
         env:
+          GIT_NAME: ${{ vars.GIT_NAME }}
           GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
