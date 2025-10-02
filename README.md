@@ -19,6 +19,8 @@
 
 ## Sekilas Tentang
 
+Gitea adalah layanan **self-hosted Git** yang bersifat ringan dan _open source_. Gitea memiliki fungsi yang mirip dengan Github ataupun Gitlab, yaitu sebagai platform kolaborasi pengembangan perangkat lunak yang menyediakan fitur **version control**, **issue tracking**, **pull/merge request**, **wiki**, serta **manajemen pengguna** dan **organisasi**.
+
 ## Instalasi
 
 ### Sistem Operasi
