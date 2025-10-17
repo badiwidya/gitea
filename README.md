@@ -405,12 +405,42 @@ Dengan menggunakan Docker pada Gitea, meskipun ada sedikit *overhead* pada perfo
 
 Antarmuka pengguna Gitea dibuat sangat mirip dengan GitHub. Bagi anggota tim kami yang sudah terbiasa dengan GitHub, transisi ke Gitea hampir tidak memerlukan learnig curve yang sulit. Tata letak untuk repositori, *pull request*, *issues*, dan pengaturan organisasi terasa sangat intuitif. Kemiripan ini mempercepat adopsi dan membuat tim dapat menggunakannya tanpa perlu pelatihan khusus terlebih dahulu. Faktor ini penting bagi tim kecil yang mengutamakan kecepatan dan agility dalam alur kerja pengembangan mereka.
 
----
-**Referensi yang Dikutip:**
-* Gao, X., Steenkamer, B. P., Gu, Z., Kayaalp, M., Pendarakis, D., & Wang, H. (2021). A study on the security implications of information leakages in container clouds. *IEEE Transactions on Dependable and Secure Computing*, 18(1), 174-191.
----
-## Referensi
+![gitea benchmark](img/gitea_benchmark.png)
 
+---
+### **Kekurangan Gitea (Berdasarkan Pengalaman dan Analisis)**
+
+Meskipun Gitea menawarkan banyak keunggulan, kami mengakui adanya *trade-off*. Filosofi desainnya yang ringan dan minimalis membawa beberapa keterbatasan jika dibandingkan dengan platform yang lebih besar.
+
+#### **1. Beban Administratif dan Tanggung Jawab Keamanan Penuh**
+
+Kebebasan dan kontrol penuh dari model *self-hosting* harus diikuti dnengan tanggung jawab yang besar. Dengan mengelola Gitea sendiri, tim kami juga berperan sebagai administrator sistem. Tanggung jawab ini mencakup seluruh siklus hidup pemeliharaan server, yang merupakan pekerjaan teknis yang terus menerus dan tidak bisa diabaikan.
+
+* **Pemeliharaan Rutin:** Kami bertanggung jawab untuk melakukan pembaruan Gitea secara berkala, mem-patch sistem operasi, dan memastikan semua komponen (seperti Nginx dan Docker) tetap aman dan update.
+* **Keamanan:** Gitea, seperti perangkat lunak lainnya, tidak luput dari penemuan celah keamanan (vulnerabilities). Pada tahun 2024-2025 saja, beberapa celah keamanan telah ditemukan, mulai dari *Cross-Site Scripting* (XSS) hingga isu pada implementasi SSH. Tanggung jawab untuk memantau pengumuman keamanan dan segera menerapkan *patch* berada di tangan kami sebagai administrator. Kelalaian dalam hal ini dapat membuka server terhadap risiko eksploitasi.
+* **Strategi Backup dan Pemulihan:** Data adalah aset paling berharga. Kami harus merancang dan mengimplementasikan strategi *backup* yang reliable. Praktik terbaik untuk Gitea mengharuskan layanan dihentikan sementara saat proses *backup* untuk menjamin konsistensi data antara database dan repositori. Proses pemulihan (*restore*) juga merupakan prosedur yang rumit. Beban operasional ini ada pada layanan SaaS seperti GitHub atau GitLab.com, ditangani oleh penyedia layanan.
+
+Beban ini seringkali ditanggung Usaha Kecil dan Menengah (UKM), yang biasanya memiliki sumber daya dan keahlian IT yang terbatas. Tantangan dalam mengelola skalabilitas dan sumber daya aplikasi pada infrastruktur *on-premises* dapat menjadi penghalang yang besar (Tonge et al., 2025).
+
+#### **2. Keterbatasan Fitur Lanjutan dan Ekosistem**
+
+Fokus Gitea pada efisiensi berarti Gitea tidak menawarkan rangkaian fitur DevOps terintegrasi selengkap GitLab. Bagi tim yang membutuhkan alur kerja DevOps yang canggih, ini bisa menjadi sebuah kekurangan.
+
+* **CI/CD yang Lebih Sederhana:** Meskipun Gitea Actions dirancang agar kompatibel dengan GitHub Actions, terdapat beberapa keterbatasan teknis. Beberapa sintaks *workflow* penting seperti `concurrency` (untuk mengontrol eksekusi *job* secara bersamaan) dan `permissions` (untuk mengatur hak akses granular pada level *job*) belum didukung. Bagi tim yang sangat bergantung pada otomatisasi CI/CD yang kompleks, keterbatasan ini mungkin menjadi penghalang.
+* **Fitur Enterprise Terbatas:** GitLab menawarkan fitur-fitur bawaan yang ditujukan untuk perusahaan besar, seperti *security scanning* (SAST, DAST), *compliance management*, dan *value stream analytics*. Fitur-fitur ini tidak ada di Gitea. Untuk mendapatkan fungsionalitas serupa, tim harus mengintegrasikan dan mengelola perangkat lunak pihak ketiga secara manual, yang menambah kompleksitas pada *tech stack*.
+* **Ekosistem Plugin yang Masih Berkembang:** Ekosistem integrasi Gitea cukup matang untuk kebutuhan inti dan digerakkan oleh komunitas yang aktif. Namun, jumlahnya tidak sebanyak dan tidak seketat "marketplace" pada GitHub atau GitLab. Jika tim Anda bergantung pada integrasi yang sangat spesifik dengan perangkat lunak enterprise lain, kemungkinan besar Anda akan menemukan dukungan *out-of-the-box* yang lebih baik pada platform yang lebih besar.
+
+Singkatnya, kekurangan Gitea disebabkan karena Gitea menempatkan lebih banyak tanggung jawab pada pengguna sebagai ganti dari kontrol dan efisiensi, serta fokus pada fitur inti *version control* daripada menyediakan platform DevOps yang serba ada.
+
+![cloud vs selfhosted](img/cloud_vs_selfhosted.png)
+
+---
+
+
+
+## Referensi
+* Tonge, A. S., Baniya, B. K., & GC, D. (2025). Efficient, scalable, and secure network monitoring platform: self-contained solution for future smes. Network, 5(3), 36. https://doi.org/10.3390/network5030036 
+* Gao, X., Steenkamer, B. P., Gu, Z., Kayaalp, M., Pendarakis, D., & Wang, H. (2021). A study on the security implications of information leakages in container clouds. IEEE Transactions on Dependable and Secure Computing, 18(1), 174-191. https://doi.org/10.1109/tdsc.2018.2879605 
 - Gitea Documentation - [https://docs.gitea.com/](https://docs.gitea.com/)
 - Install Docker Engine on Ubuntu - [https://docs.docker.com/engine/install/ubuntu/](https://docs.docker.com/engine/install/ubuntu/)
 - nginx documentation - [https://nginx.org/en/docs/](https://nginx.org/en/docs/)
