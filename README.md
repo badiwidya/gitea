@@ -223,8 +223,6 @@ sudo certbot --nginx -d gitea-lab.ddns.net
 ## Konfigurasi
 -----
 
-## **3. Konfigurasi (Opsional)**
-
 Setelah Gitea berhasil diinstal dan berjalan di dalam kontainer Docker, langkah selanjutnya adalah melakukan konfigurasi pada level server agar layanan dapat diakses dari luar jaringan secara aman dan profesional. Konfigurasi ini fokus pada bagaimana lalu lintas (*traffic*) jaringan diarahkan dan diamankan sebelum mencapai aplikasi. Pada proyek ini, kami mengimplementasikan dua konfigurasi utama, yaitu penggunaan Nginx sebagai *reverse proxy* dan pengamanan koneksi menggunakan SSL/TLS (HTTPS) dengan Certbot.
 
 ### **Reverse Proxy Nginx**
@@ -294,7 +292,87 @@ Setelah proses ini selesai, Nginx akan dikonfigurasi ulang untuk melayani Gitea 
 
 ## Maintenance
 
-## Otomatisasi
+-----
+## **4. Otomatisasi**
+
+Salah satu nilai lebih dari proyek ini adalah implementasi alur kerja otomatis untuk menjaga konsistensi antara repositori utama yang ada di GitHub dengan server Gitea pribadi yang telah kita siapkan. Daripada melakukan proses *push* manual ke dua lokasi berbeda (*dual push*), kami membangun sebuah alur kerja *Continuous Integration/Continuous Deployment* (CI/CD) sederhana menggunakan **GitHub Actions**.
+
+Tujuan dari otomatisasi ini adalah menjadikan repositori GitHub sebagai *single source of truth* (sumber kebenaran tunggal). Setiap kali ada perubahan yang digabungkan ke cabang `main` di GitHub, sebuah proses otomatis akan terpicu untuk mencerminkan (*mirroring*) perubahan tersebut ke server Gitea kita. Hal ini memastikan bahwa server Gitea selalu memiliki versi kode terbaru tanpa intervensi manual, mengurangi risiko kesalahan manusia dan meningkatkan efisiensi alur kerja tim.
+
+### **Sinkronisasi GitHub ke Gitea dengan GitHub Actions**
+
+Mekanisme otomatisasi ini diatur dalam sebuah file *workflow* yang terletak di `.github/workflows/sync-to-gitea.yml`. File ini menggunakan sintaks YAML untuk mendefinisikan serangkaian perintah yang akan dijalankan oleh *runner* (server virtual) yang disediakan oleh GitHub.
+
+Berikut adalah isi lengkap dari file *workflow* tersebut:
+
+```yaml
+name: Sync repo to Gitea
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set git identity
+        run: |
+          git config --global user.name "${GIT_NAME}"
+          git config --global user.email "${GIT_EMAIL}"
+        env:
+          GIT_NAME: ${{ vars.GIT_NAME }}
+          GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+
+      - name: Push to Gitea
+        run: |
+          git remote add gitea https://${GIT_NAME}:${GITEA_TOKEN}@gitea-lab.ddns.net/kdjk4/gitea.git
+          git push --force gitea main
+        env:
+          GIT_NAME: ${{ vars.GIT_NAME }}
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+````
+
+**Penjelasan Alur Kerja (*Workflow*):**
+
+1.  **`name: Sync repo to Gitea`**: Memberikan nama yang deskriptif untuk *workflow* ini, yang akan muncul di tab "Actions" pada repositori GitHub.
+
+2.  **`on:`**: Mendefinisikan pemicu (*trigger*) yang akan menjalankan *workflow*.
+
+      * `push: branches: ["main"]`: *Workflow* akan otomatis berjalan setiap kali ada `git push` ke cabang `main`.
+      * `workflow_dispatch:`: Memungkinkan *workflow* dijalankan secara manual melalui antarmuka web GitHub.
+
+3.  **`jobs:`**: Mendefinisikan satu atau lebih pekerjaan (*jobs*) yang akan dieksekusi.
+
+      * **`sync:`**: Nama dari pekerjaan yang kita buat.
+      * **`runs-on: ubuntu-latest`**: Menentukan bahwa pekerjaan ini akan berjalan di lingkungan server virtual Ubuntu versi terbaru yang disediakan oleh GitHub.
+
+4.  **`steps:`**: Serangkaian langkah atau perintah yang akan dieksekusi secara berurutan di dalam *job*.
+
+      * **`name: checkout`**: Langkah pertama adalah mengunduh salinan dari repositori GitHub ke dalam *runner* menggunakan *action* siap pakai `actions/checkout@v4`. Opsi `fetch-depth: 0` memastikan seluruh riwayat *commit* diunduh, yang penting untuk proses *mirroring*.
+
+      * **`name: Set git identity`**: Mengkonfigurasi identitas Git (nama dan email) di dalam *runner*. Identitas ini diambil dari **Repository Variables** (`vars.GIT_NAME` dan `vars.GIT_EMAIL`) yang disimpan di pengaturan repositori GitHub.
+
+      * **`name: Push to Gitea`**: Ini adalah langkah inti dari otomatisasi.
+
+          * `git remote add gitea ...`: Menambahkan server Gitea kita sebagai *remote repository* baru dengan nama `gitea`. URL-nya mencakup kredensial otentikasi.
+          * **Aspek Keamanan**: Perhatikan penggunaan `${GITEA_TOKEN}`. Ini adalah *access token* yang dibuat di Gitea dan disimpan sebagai **Repository Secret** (`secrets.GITEA_TOKEN`) di GitHub. Menggunakan *secrets* memastikan bahwa kredensial sensitif tidak terekspos dalam kode atau log.
+          * `git push --force gitea main`: Melakukan *force push* dari cabang `main` lokal (yang merupakan salinan dari GitHub) ke *remote* `gitea`. Opsi `--force` digunakan untuk memastikan repositori Gitea menjadi cerminan identik dari repositori GitHub, menimpa riwayat yang mungkin berbeda.
+
+
+![continuous integration](img/continuous_integration.jpg)
+[Image of a CI/CD workflow diagram]
+
+*Gambar 5. Alur Kerja Otomatisasi Sinkronisasi*
+
+Dengan implementasi ini, kami dapat mengintegrasikan dua layanan Git yang berbeda (satu publik, satu privat) menjadi satu alur kerja yang kohesif dan otomatis, yang merupakan penerapan praktis dari konsep CI/CD dalam manajemen kode.
+
+
 
 ## Cara Pemakaian
 
