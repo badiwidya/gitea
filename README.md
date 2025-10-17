@@ -1,4 +1,13 @@
 <p align="center"><img src="img/gitea.png" width="200" alt="Gitea logo"></p>
+# Anggota Kelompok
+
+| NIM           | Nama                        |
+|---------------|-----------------------------|
+| G6401231019   | Taura Mohamad Inzaghi       |
+| G6401231029   | Naufal Ghifari Afdhala      |
+| G6401231043   | Berton Adiwidya Wibowo      |
+| G6401231071   | Muhammad Naufal Ramadhan    |
+| G6401231153   | Muhammad Salman Maulana     |
 
 # Gitea
 
@@ -291,9 +300,98 @@ Setelah proses ini selesai, Nginx akan dikonfigurasi ulang untuk melayani Gitea 
 
 
 ## Maintenance
+-----
+
+Mengelola layanan *self-hosted* seperti Gitea bukan hanya tentang instalasi awal, tetapi juga tentang pemeliharaan berkelanjutan untuk memastikan stabilitas, keamanan, dan integritas data dalam jangka panjang. Bagian ini menjelaskan beberapa praktik pemeliharaan esensial yang kami rekomendasikan, terutama berfokus pada strategi pencadangan (*backup*) dan pemulihan (*restore*).
+
+### **Pentingnya Maintenance Rutin**
+
+Sebagai administrator server, tanggung jawab utama adalah memastikan layanan tetap berjalan dengan baik dan data aman dari kehilangan. Tanpa *maintenance* rutin, server dapat mengalami penurunan performa, kehabisan ruang penyimpanan, atau bahkan menjadi rentan terhadap serangan karena perangkat lunak yang tidak diperbarui. Dua pilar utama dari *maintenance* adalah *backup* dan *update*.
+
+### **Strategi Pencadangan (Backup)**
+
+*Backup* adalah proses menyalin data-data penting Gitea ke lokasi penyimpanan yang aman. Ini adalah jaring pengaman paling krusial jika terjadi kegagalan perangkat keras, kerusakan data, atau insiden keamanan. Berdasarkan praktik terbaik, berikut adalah proses *backup* yang kami implementasikan.
+
+#### **Langkah 1: Hentikan Layanan Gitea**
+
+Untuk menjamin konsistensi data antara database dan file repositori, sangat penting untuk menghentikan layanan Gitea sebelum memulai proses *backup*. Jika Gitea berjalan saat *backup*, bisa terjadi kondisi di mana database sudah tercatat tetapi file di repositori belum, yang menyebabkan *backup* menjadi tidak konsisten.
+
+```bash
+# Masuk ke direktori Gitea
+cd /opt/gitea
+
+# Hentikan kontainer Gitea dan databasenya
+sudo docker compose down
+````
+
+#### **Langkah 2: Gunakan Perintah `dump` Bawaan Gitea**
+
+Gitea menyediakan sebuah perintah `dump` yang sangat berguna untuk mengumpulkan semua data penting ke dalam satu file arsip `.zip`. Perintah ini akan mencadangkan:
+
+  * Database (dalam format `.sql`).
+  * Semua repositori Git.
+  * File konfigurasi `app.ini`.
+  * Data pengguna (avatar, lampiran, LFS, dll).
+
+<!-- end list -->
+
+```bash
+# Jalankan perintah dump dari dalam kontainer Gitea
+# Perintah ini akan membuat file zip di dalam direktori ./gitea
+sudo docker compose run --rm -u $(id -u):$(id -g) server dump
+```
+
+  * **Catatan:** Perintah di atas dijalankan menggunakan `docker compose run` yang akan membuat kontainer sementara untuk mengeksekusi perintah `dump`, lalu menghapusnya setelah selesai. `  -u $(id -u):$(id -g) ` digunakan untuk memastikan file yang dihasilkan memiliki *permission* yang benar.
+
+#### **Langkah 3: Pindahkan File Backup ke Lokasi Aman**
+
+Setelah proses selesai, akan ada file `gitea-dump-TIMESTAMP.zip` di direktori `/opt/gitea`. Pindahkan file ini ke lokasi penyimpanan yang aman, idealnya di luar server (*off-site*), seperti Google Drive, Amazon S3, atau *hard drive* eksternal.
+
+```bash
+# Contoh memindahkan file backup ke direktori /mnt/backups
+sudo mv gitea-dump-*.zip /mnt/backups/
+```
+
+#### **Langkah 4: Jalankan Kembali Layanan Gitea**
+
+Setelah *backup* selesai dan dipindahkan, jalankan kembali layanan Gitea.
+
+```bash
+sudo docker compose up -d
+```
+
+### **Proses Pemulihan (Restore)**
+
+Jika terjadi bencana dan Anda perlu memulihkan Gitea dari *backup*, prosesnya adalah kebalikan dari pencadangan:
+
+1.  **Siapkan Server Baru:** Pastikan Docker, Docker Compose, dan Nginx sudah terinstal.
+2.  **Hentikan Gitea (jika berjalan):** `sudo docker compose down`
+3.  **Hapus Data Lama:** Bersihkan direktori data lama (misal: `/opt/gitea/gitea` dan `/opt/gitea/postgres`) untuk memastikan pemulihan yang bersih.
+4.  **Ekstrak File Backup:** Unzip file `gitea-dump-TIMESTAMP.zip` di lokasi yang sesuai.
+5.  **Pindahkan Data Hasil Ekstrak:** Salin kembali semua direktori dan file (termasuk `app.ini`, `data/`, `repos/`, dll.) ke direktori kerja Gitea (`/opt/gitea`).
+6.  **Pulihkan Database:** Impor file `.sql` hasil *dump* ke dalam database PostgreSQL.
+7.  **Atur Ulang Hak Akses:** Pastikan semua file memiliki *permission* yang benar agar dapat diakses oleh pengguna Gitea di dalam kontainer.
+8.  **Jalankan Gitea:** `sudo docker compose up -d`
+
+### **Pembaruan (Updating)**
+
+Menjaga Gitea tetap pada versi terbaru sangat penting untuk mendapatkan fitur baru dan, yang lebih krusial, *patch* keamanan. Dengan Docker, proses ini sangat mudah:
+
+1.  **Hentikan Layanan:** `sudo docker compose down`
+2.  **Tarik Image Terbaru:** Perbarui *image* Gitea dari Docker Hub.
+    ```bash
+    sudo docker compose pull
+    ```
+3.  **Jalankan Kembali:** Jalankan kembali Gitea. Docker akan otomatis menggunakan *image* yang baru diunduh.
+    ```bash
+    sudo docker compose up -d
+    ```
+
+Dengan menjalankan rutinitas *backup* dan *update* ini secara berkala, layanan Gitea dapat tetap berjalan reliable dan aman dalam jangka waktu yang panjang.
+
 
 -----
-## **4. Otomatisasi**
+## **Otomatisasi**
 
 Salah satu nilai lebih dari proyek ini adalah implementasi alur kerja otomatis untuk menjaga konsistensi antara repositori utama yang ada di GitHub dengan server Gitea pribadi yang telah kita siapkan. Daripada melakukan proses *push* manual ke dua lokasi berbeda (*dual push*), kami membangun sebuah alur kerja *Continuous Integration/Continuous Deployment* (CI/CD) sederhana menggunakan **GitHub Actions**.
 
@@ -376,8 +474,74 @@ Dengan implementasi ini, kami dapat mengintegrasikan dua layanan Git yang berbed
 
 ## Cara Pemakaian
 
-## Pembahasan
-## **6. Pembahasan**
+Setelah Gitea berhasil diinstal dan dikonfigurasi, platform ini siap digunakan untuk menunjang alur kerja pengembangan perangkat lunak tim. Bagian ini akan menjelaskan fungsi-fungsi utama Gitea beserta alur kerja yang direkomendasikan untuk tim kecil, berdasarkan praktik terbaik di industri.
+
+### **Tampilan Aplikasi**
+
+Antarmuka Gitea dirancang agar bersih, cepat, dan intuitif, dengan kemiripan yang kuat dengan platform populer seperti GitHub, sehingga memudahkan proses adaptasi bagi pengguna baru.
+
+* **Halaman Awal & Registrasi:** Pengguna baru akan disambut oleh halaman utama yang menjelaskan fitur-fitur Gitea. Proses registrasi akun sangat sederhana dan hanya memerlukan informasi dasar.
+
+![gitea halaman utama](img/gitea_halaman_utama.png)
+
+* **Dashboard Pengguna:** Setelah login, pengguna akan melihat Dashboard personal. Halaman ini berfungsi sebagai pusat kendali yang menampilkan *feed* aktivitas dari repositori yang diikuti, serta daftar semua repositori yang dapat diakses oleh pengguna.
+
+![gitea halaman register](img/gitea_halaman_register.png)
+
+![gitea halaman dasbor](img/gitea_halaman_dasbor.png)
+
+
+### **Fungsi-Fungsi Utama**
+
+Berikut adalah beberapa fungsi esensial Gitea yang menjadi inti dari alur kerja kolaboratif.
+
+#### **1. Manajemen Repositori (Code Hosting)**
+
+Setiap proyek dimulai dengan sebuah repositori. Pengguna dapat membuat repositori baru atau melakukan *fork* dari repositori yang sudah ada. Halaman utama repositori menjadi pusat dari semua aktivitas, menampilkan daftar file dan direktori, riwayat *commit*, serta navigasi ke fitur-fitur lainnya.
+
+![gitea_halaman_code](img/gitea_halaman_code.png)
+
+#### **2. Manajemen Proyek (Issues & Kanban Boards)**
+
+Gitea menyediakan dua alat utama untuk manajemen proyek:
+
+* **Issues:** Berfungsi sebagai pusat pelacakan tugas, laporan *bug*, dan permintaan fitur. Setiap *issue* dapat diberi label, ditugaskan ke anggota tim, dan dikelompokkan dalam *milestones*.
+
+![gitea_halaman_issue1](img/gitea_halaman_issue1.png)
+
+![gitea_halaman_issue2](img/gitea_halaman_issue2.png)
+
+
+
+* **Projects (Kanban Boards):** Untuk memvisualisasikan alur kerja, Gitea menyediakan papan Kanban. Tim dapat membuat kolom-kolom seperti "To Do", "In Progress", dan "Done", lalu memindahkan kartu (*issue*) sesuai dengan progres pengerjaannya.
+
+![gitea_halaman_project](img/gitea_halaman_project.png)
+
+#### **3. Kolaborasi Kode (Pull Requests)**
+
+*Pull Requests* (PR) adalah jantung dari kolaborasi kode. Fitur ini memungkinkan seorang developer untuk mengusulkan perubahan kode dari sebuah *branch* ke *branch* lainnya (biasanya ke `main`). Di dalam PR, tim dapat melakukan diskusi dan *review* kode baris per baris sebelum perubahan tersebut digabungkan, memastikan kualitas kode tetap terjaga.
+
+![gitea_halaman_fork](img/gitea_halaman_fork.png)
+
+
+
+### **Interaksi Pengguna (Alur Kerja Tim)**
+
+Berdasarkan hasil riset mengenai praktik terbaik untuk tim kecil, kami mengadopsi alur kerja yang sederhana namun efektif yang disebut **GitHub Flow**. Alur ini memastikan bahwa *branch* utama (`main`) selalu dalam keadaan stabil dan siap untuk di-*deploy*.
+
+Berikut adalah langkah-langkah interaksi pengguna dalam satu siklus pengembangan fitur di Gitea:
+
+1.  **Ambil Tugas dari *Issue Tracker***: Seorang developer membuka halaman **Issues** dan mengambil satu tugas yang akan dikerjakan.
+2.  **Buat *Feature Branch***: Dari halaman repositori, developer membuat *branch* baru dari `main` dengan nama yang deskriptif, misalnya `feature/user-login`.
+3.  **Lakukan Perubahan (Coding & Commit)**: Developer menulis kode di lingkungan lokalnya, melakukan `commit` secara berkala, dan melakukan `push` ke *feature branch* yang baru dibuat di server Gitea.
+4.  **Buka *Pull Request***: Setelah fitur selesai, developer membuka **Pull Request** yang ditujukan ke *branch* `main`. Dalam deskripsi PR, ia akan menautkan *issue* yang relevan (misal: "Closes #12") agar Gitea dapat menutup *issue* tersebut secara otomatis saat PR digabungkan.
+5.  ***Code Review***: Anggota tim lain mendapatkan notifikasi, membuka PR, lalu memberikan komentar dan masukan langsung pada baris-baris kode yang berubah.
+6.  **Merge & Hapus Branch**: Setelah disetujui, PR digabungkan (*merge*) ke dalam *branch* `main`. *Feature branch* yang sudah tidak terpakai kemudian dihapus untuk menjaga kebersihan repositori.
+
+Alur kerja ini, yang sepenuhnya didukung oleh fitur-fitur Gitea, memastikan setiap perubahan tercatat, terverifikasi, dan menjaga kolaborasi tim tetap terorganisir dan efisien.
+
+
+## **Pembahasan**
 
 Bagian ini menyajikan analisis mendalam mengenai aplikasi Gitea berdasarkan pengalaman langsung selama proses instalasi, konfigurasi, dan penggunaan, yang diperkaya dengan data dari studi kasus dan riset akademis. Pembahasan akan mencakup evaluasi kelebihan dan kekurangan Gitea secara kritis, serta perbandingan komparatif dengan platform sejenis untuk memberikan konteks yang lebih luas.
 
