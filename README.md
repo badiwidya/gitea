@@ -435,12 +435,47 @@ Singkatnya, kekurangan Gitea disebabkan karena Gitea menempatkan lebih banyak ta
 ![cloud vs selfhosted](img/cloud_vs_selfhosted.png)
 
 ---
+### **Perbandingan dengan Aplikasi Sejenis**
 
+Untuk memahami posisi Gitea dalam ekosistem *version control*, penting untuk membandingkannya dengan platform lain yang populer di kategori yang sama. Perbandingan ini akan difokuskan pada dua platform utama: GitLab, sebagai kompetitor kelas berat dengan fitur lengkap, dan Gogs, sebagai proyek asal-usul Gitea.
+
+#### **Gitea vs. GitLab**
+
+Gitea dan GitLab seringkali dianggap sebagai pilihan utama untuk *self-hosted Git service*, namun keduanya melayani segmen pengguna yang sangat berbeda dan dibangun di atas filosofi yang berlawanan. Gitea mengutamakan kesederhanaan, kecepatan, dan efisiensi, sementara GitLab bertujuan untuk menjadi platform DevOps terintegrasi yang mencakup seluruh siklus hidup pengembangan perangkat lunak. Perbedaan mendasar ini terlihat dalam setiap aspek, mulai dari kebutuhan sumber daya hingga model pengembangannya.
+
+Analisis perbandingan menunjukkan bahwa model pengembangan yang digerakkan oleh komunitas seperti Gitea cenderung berfokus pada kebutuhan teknis inti dan keberlanjutan jangka panjang yang didorong oleh kontributor, sedangkan proyek yang didukung korporasi seperti GitLab memiliki roadmap yang lebih terstruktur dan berorientasi pada fitur komersial. Tata kelola partisipatif dalam komunitas *open-source* sering kali menghasilkan evolusi fitur yang lebih baik dan sesuai dengan kebutuhan pengguna aktif (Alami et al., 2022).
+
+Berikut adalah tabel perbandingan ringkas antara keduanya:
+
+| Aspek Perbandingan | Gitea | GitLab |
+| :--- | :--- | :--- |
+| **Filosofi & Target** | **Ringan & Cepat.** Ditujukan untuk individu, tim kecil, hingga UKM yang membutuhkan *version control* yang efisien dan mudah dikelola. | **Platform DevOps Lengkap.** Ditujukan untuk tim menengah hingga korporasi besar yang membutuhkan solusi *end-to-end* terintegrasi. |
+| **Kebutuhan Sumber Daya** | **Sangat Rendah.** Dapat berjalan lancar dengan 1-2 core CPU dan 1GB RAM. Ideal untuk VPS atau server dengan spesifikasi rendah. | **Tinggi.** Membutuhkan minimal 4 core CPU dan 4GB RAM (8GB direkomendasikan) bahkan untuk instalasi skala kecil. |
+| **Fitur CI/CD** | **Gitea Actions.** Kompatibel dengan sintaks GitHub Actions, namun beberapa fitur lanjutan seperti `concurrency` belum didukung. | **GitLab CI/CD.** Sangat matang, kaya fitur, dan terintegrasi secara mendalam. Dianggap sebagai salah satu yang terbaik di industri. |
+| **Ekosistem & Fitur** | **Fokus pada Inti.** Menyediakan fitur-fitur esensial (Git, Issues, PR, Wiki, Package Registry). Integrasi lain bergantung pada pihak ketiga. | **Semua Ada (All-in-One).** Menyediakan fitur bawaan untuk *security scanning* (SAST/DAST), *monitoring*, *planning boards*, dan banyak lagi. |
+| **Model Pengembangan** | **Digerakkan Komunitas.** Sepenuhnya *open-source* dan dikembangkan oleh kontributor global. Peta jalan lebih fleksibel dan transparan. | **Didukung Korporasi.** Model "Open Core", di mana edisi komunitas gratis, namun fitur-fitur canggih hanya tersedia di versi berbayar. |
+| **Kompleksitas** | **Sederhana.** Instalasi dan pemeliharaan sangat mudah, terutama dengan Docker. | **Kompleks.** Instalasi dan pemeliharaan lebih rumit karena terdiri dari banyak komponen yang saling bergerak. |
+
+Pilihlah **Gitea** jika prioritas kita adalah performa, efisiensi sumber daya, kontrol penuh, dan kesederhanaan untuk kebutuhan *version control* inti. Pilih **GitLab** jika kita membutuhkan platform DevOps terintegrasi yang kuat dengan fitur-fitur enterprise dan bersedia mengalokasikan sumber daya server yang lebih besar.
+
+#### **Gitea vs. Gogs**
+
+Perbandingan antara Gitea dan Gogs menark karena Gitea merupakan *fork* dari Gogs. Gitea dibuat pada tahun 2016 oleh sekelompok kontributor Gogs yang menginginkan model pengembangan yang lebih cepat dan lebih terbuka yang digerakkan oleh komunitas. Sejak saat itu, Gitea telah berevolusi besar besaran, sementara Gogs tetap setia pada filosofi minimalisnya di bawah pengelolaan satu pengembang utama.
+
+* **Pengembangan dan Komunitas:** Perbedaan paling terlihat adalah laju pengembangan. Gitea memiliki komunitas yang jauh lebih besar dan aktif, yang menghasilkan rilis fitur baru, perbaikan bug, dan *patch* keamanan yang lebih sering. Sebaliknya, pengembangan Gogs lebih lambat dan lebih terukur. Hasil riset kepuasan komunitas menunjukkan Gitea memiliki peta roadmap yang lebih menjanjikan.
+* **Kelengkapan Fitur:** Gitea telah menambahkan banyak fitur yang tidak ada di Gogs, yang paling terlihat adalah **Gitea Actions** (sistem CI/CD terintegrasi) dan **Package Registry**. Fitur-fitur ini menjadikan Gitea sebagai solusi yang lebih mendekati platform DevOps ringan, sementara Gogs tetap fokus murni sebagai layanan hosting Git yang sangat minimalis.
+* **Filosofi:** Gogs unggul dalam satu hal, yaitu minimalisme. Gogs membutuhkan sumber daya yang bahkan lebih rendah daripada Gitea dan merupakan pilihan terbaik jika kebutuhan kita hanyalah layanan Git dasar yang paling ringan dan sederhana.
+
+Pilihlah **Gogs** jika kita membutuhkan solusi paling minimalis dan ringan yang hanya untuk *hosting* Git. Untuk hampir semua kasus penggunaan lainnya, **Gitea** adalah pilihan yang lebih baik karena pengembangan aktif, komunitas yang mendukung, dan set fitur yang jauh lebih banyak tanpa mengorbankan efisiensi yang tinggi.
+
+
+---
 
 
 ## Referensi
 * Tonge, A. S., Baniya, B. K., & GC, D. (2025). Efficient, scalable, and secure network monitoring platform: self-contained solution for future smes. Network, 5(3), 36. https://doi.org/10.3390/network5030036 
-* Gao, X., Steenkamer, B. P., Gu, Z., Kayaalp, M., Pendarakis, D., & Wang, H. (2021). A study on the security implications of information leakages in container clouds. IEEE Transactions on Dependable and Secure Computing, 18(1), 174-191. https://doi.org/10.1109/tdsc.2018.2879605 
+* Gao, X., Steenkamer, B. P., Gu, Z., Kayaalp, M., Pendarakis, D., & Wang, H. (2021). A study on the security implications of information leakages in container clouds. IEEE Transactions on Dependable and Secure Computing, 18(1), 174-191. https://doi.org/10.1109/tdsc.2018.2879605
+* Alami, A., Pardo, R., Cohn, M. L., & Wąsowski, A. (2022). Pull request governance in open source communities. IEEE Transactions on Software Engineering, 48(12), 4838-4856. https://doi.org/10.1109/tse.2021.3128356
 - Gitea Documentation - [https://docs.gitea.com/](https://docs.gitea.com/)
 - Install Docker Engine on Ubuntu - [https://docs.docker.com/engine/install/ubuntu/](https://docs.docker.com/engine/install/ubuntu/)
 - nginx documentation - [https://nginx.org/en/docs/](https://nginx.org/en/docs/)
