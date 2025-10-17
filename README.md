@@ -377,7 +377,38 @@ Dengan implementasi ini, kami dapat mengintegrasikan dua layanan Git yang berbed
 ## Cara Pemakaian
 
 ## Pembahasan
+## **6. Pembahasan**
 
+Bagian ini menyajikan analisis mendalam mengenai aplikasi Gitea berdasarkan pengalaman langsung selama proses instalasi, konfigurasi, dan penggunaan, yang diperkaya dengan data dari studi kasus dan riset akademis. Pembahasan akan mencakup evaluasi kelebihan dan kekurangan Gitea secara kritis, serta perbandingan komparatif dengan platform sejenis untuk memberikan konteks yang lebih luas.
+
+### **Kelebihan Gitea (Berdasarkan Pengalaman dan Analisis)**
+
+#### **1. Ringan dan Cepat**
+
+Salah satu keunggulan utama yang kami rasakan secara langsung adalah performa Gitea yang sangat responsif dengan kebutuhan sumber daya yang sedikit. Gitea menunjukkan konsumsi CPU dan memori yang jauh lebih rendah dibandingkan dengan platform DevOps lengkap seperti GitLab. Gitea yang ditulis dalam bahasa Go, yang menghasilkan *single binary* dengan dependensi minimal.
+
+Dalam konteks proyek kami yang menggunakan VPS dengan sumber daya terbatas, Gitea dapat berjalan dengan lancar tanpa menyebabkan *bottleneck* pada sistem. Gitea sangat menguntungkan bagi organisasi dengan infrastruktur terbatas di mana efisiensi biaya dan alokasi sumber daya menjadi faktor pentingnya.
+
+#### **2. Full Control dan Data Sovereignty **
+
+Dengan meng-hosting Gitea pada server pribadi, kami memiliki kontrol penuh atas kode sumber dan data proyek. Keunggulan ini tidak didapatkan dari layanan berbasis *cloud public*. Semua data, mulai dari repositori, isu, hingga data pengguna, tersimpan di dalam infrastruktur yang kami kelola, di belakang *firewall* kami. Hal ini mengurangi risiko yang terkait dengan kebijakan privasi pihak ketiga, potensi kebocoran data, atau pemadaman layanan yang berada di luar kendali kami.
+
+Penggunaan Docker dalam instalasi Gitea juga menambahkan lapisan keamanan melalui isolasi. Kontainer Gitea berjalan dalam lingkungan yang terpisah dari sistem operasi *host*, yang membatasi potensi kerusakan jika terjadi celah keamanan pada aplikasi. Meskipun kontainerisasi memperkenalkan tantangan keamanan tersendiri, seperti risiko dari *image* yang rentan atau miskonfigurasi jaringan, arsitektur *shared kernel* pada dasarnya dapat memicu kebocoran informasi jika tidak dikelola dengan benar (Gao et al., 2021). Namun, dengan mengikuti best practice, seperti menggunakan *official image*, tidak menjalankan kontainer sebagai *root*, dan mengelola *secrets* dengan benar, manfaat isolasi jauh lebih besar daripada risikonya untuk skala proyek kami.
+
+#### **3. Instalasi dan Manajemen yang Disederhanakan 🛠️**
+
+Proses instalasi menggunakan Docker dan Docker Compose sangat efisien. Dengan hanya satu file `docker-compose.yml`, kami dapat mendefinisikan dan menjalankan seluruh layanan Gitea beserta databasenya. Ini menyederhanakan proses yang biasanya bisa memakan waktu berjam-jam, seperti menginstal dependensi, mengkonfigurasi database, dan mengatur pengguna sistem secara manual.
+
+Dengan menggunakan Docker pada Gitea, meskipun ada sedikit *overhead* pada performa I/O disk, manfaat dalam hal manajemen, portability, dan kemudahan *update* jauh lebih besar manfaatnya. Proses pembaruan Gitea menjadi sesederhana menarik *image* Docker versi terbaru dan menjalankan ulang kontainer, proses yang lebih bersih dan tidak rentan kesalahan dibandingkan pembaruan pada instalasi *native*.
+
+#### **4. Antarmuka Familiar dan Intuitif 👨‍💻**
+
+Antarmuka pengguna Gitea dibuat sangat mirip dengan GitHub. Bagi anggota tim kami yang sudah terbiasa dengan GitHub, transisi ke Gitea hampir tidak memerlukan learnig curve yang sulit. Tata letak untuk repositori, *pull request*, *issues*, dan pengaturan organisasi terasa sangat intuitif. Kemiripan ini mempercepat adopsi dan membuat tim dapat menggunakannya tanpa perlu pelatihan khusus terlebih dahulu. Faktor ini penting bagi tim kecil yang mengutamakan kecepatan dan agility dalam alur kerja pengembangan mereka.
+
+---
+**Referensi yang Dikutip:**
+* Gao, X., Steenkamer, B. P., Gu, Z., Kayaalp, M., Pendarakis, D., & Wang, H. (2021). A study on the security implications of information leakages in container clouds. *IEEE Transactions on Dependable and Secure Computing*, 18(1), 174-191.
+---
 ## Referensi
 
 - Gitea Documentation - [https://docs.gitea.com/](https://docs.gitea.com/)
