@@ -194,7 +194,7 @@ server {
 }
 ```
 
-> Note: `server_name localhost 127.0.0.1` bisa diganti jika memiliki nama domain (contoh `server_name gitea-lab.ddns.net`).
+> catatan: `server_name localhost 127.0.0.1` bisa diganti jika memiliki nama domain (contoh `server_name gitea-lab.ddns.net`).
 
 Lalu reload service nginx.
 
@@ -218,9 +218,79 @@ Lalu jalankan perintah.
 sudo certbot --nginx -d gitea-lab.ddns.net
 ```
 
-> Note: ganti `gitea-lab.ddns.net` dengan nama domain yang didaftarkan di [Let's Encrypt](https://letsencrypt.org).
+> catatan: ganti `gitea-lab.ddns.net` dengan nama domain yang didaftarkan di [Let's Encrypt](https://letsencrypt.org).
 
 ## Konfigurasi
+-----
+
+## **3. Konfigurasi (Opsional)**
+
+Setelah Gitea berhasil diinstal dan berjalan di dalam kontainer Docker, langkah selanjutnya adalah melakukan konfigurasi pada level server agar layanan dapat diakses dari luar jaringan secara aman dan profesional. Konfigurasi ini fokus pada bagaimana lalu lintas (*traffic*) jaringan diarahkan dan diamankan sebelum mencapai aplikasi. Pada proyek ini, kami mengimplementasikan dua konfigurasi utama, yaitu penggunaan Nginx sebagai *reverse proxy* dan pengamanan koneksi menggunakan SSL/TLS (HTTPS) dengan Certbot.
+
+### **Reverse Proxy Nginx**
+
+*Reverse proxy* adalah server perantara yang ditempatkan di depan server web utama (dalam kasus ini, kontainer Gitea). Fungsinya adalah menerima semua permintaan dari klien (pengguna) dan meneruskannya ke server Gitea. Penggunaan *reverse proxy* memberikan beberapa manfaat, seprti:
+
+* **Load Balancing:** *reverse proxy* dapat mendistribusikan beban ke beberapa server aplikasi
+* **Keamanan:** Menyembunyikan arsitektur jaringan internal. Klien hanya berinteraksi dengan Nginx, bukan langsung dengan Gitea
+* **Fleksibilitas:** Memungkinkan hosting beberapa domain atau aplikasi pad asatu alamat IP yang sama
+* **Terminasi SSL:** Mengelola enkripsi dan dekripsi HTTPS di satu tempat (Nginx), menyederhanakan konfigurasi aplikasi di belakangnya
+
+Konfigurasi Nginx untuk Gitea didefinisikan dalam file `/etc/nginx/conf.d/gitea.conf`. Berikut adalah isi dari file konfigurasi tersebut:
+
+```nginx
+server {
+    listen 80;
+    server_name gitea-lab.ddns.net; # Ganti dengan domain atau IP server kita
+
+    client_max_body_size 512M;
+
+    location / {
+        proxy_pass [http://127.0.0.1:3000](http://127.0.0.1:3000);
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+````
+
+**Penjelasan Konfigurasi:**
+
+  * `listen 80;`: Memberi instruksi pada Nginx untuk "mendengarkan" semua koneksi masuk pada port 80, yang merupakan port standar untuk protokol HTTP
+  * `server_name gitea-lab.ddns.net;`: Menentukan nama domain yang akan dilayani oleh blok `server` ini. Nginx menggunakan konfigurasi ini jika permintaan datang dengan *Host header* yang cocok dengan domain ini
+  * `client_max_body_size 512M;`: Mengatur ukuran maksimum badan permintaan dari klien. Nilai ini dinaikkan menjadi 512 MB untuk memungkinkan pengunggahan repositori Git atau file besar lainnya
+  * `location / { ... }`: Blok ini menangani semua permintaan yang masuk ke domain tersebut
+  * `proxy_pass http://127.0.0.1:3000;`: Perintah ini meneruskan (*forwards*) semua permintaan yang diterima ke alamat `http://127.0.0.1:3000`, yaitu alamat lokal tempat kontainer Gitea mem-publikasikan layanannya
+  * `proxy_set_header ...`: Perintah ini memodifikasi atau meneruskan *header* HTTP dari klien ke server Gitea, agar Gitea dapat mengetahui informasi asli dari klien (seperti alamat IP-nya), tidak dnegan melihat semua permintaan seolah olah berasal dari Nginx (`127.0.0.1`)
+
+![nginx reverse proxy](img/nginx_reverseproxy.jpg)
+*Gambar 4. Alur Kerja Nginx sebagai Reverse Proxy*
+
+### **HTTPS dengan Certbot (Opsional)**
+
+Untuk meningkatkan keamanan, disarankan untuk mengenkripsi komunikasi antara pengguna dan server menggunakan HTTPS. HTTPS mencegah pihak ketiga melakukan penyadapan (*eavesdropping*) atau manipulasi data (*man-in-the-middle attack*). Kami menggunakan **Let's Encrypt**, sebuah otoritas sertifikat (CA) gratis, dan **Certbot**, sebuah alat yang mengotomatiskan proses permintaan dan instalasi sertifikat SSL/TLS.
+
+Berikut adalah langkah-langkah untuk mengaktifkan HTTPS:
+
+1.  **Instal Certbot dan Plugin Nginx-nya:**
+    Perintah ini menginstal Certbot beserta plugin yang dirancang khusus untuk bekerja dengan Nginx. Plugin ini dapat membaca konfigurasi Nginx kita dan memodifikasinya secara otomatis untuk mengaktifkan HTTPS.
+    ```bash
+    sudo apt-get install certbot python3-certbot-nginx -y
+    ```
+2.  **Minta dan Instal Sertifikat:**
+    Perintah ini menjalankan Certbot dengan plugin Nginx (`--nginx`) dan menargetkan domain yang ditentukan (`-d gitea-lab.ddns.net`).
+    ```bash
+    sudo certbot --nginx -d gitea-lab.ddns.net
+    ```
+    Selama proses ini, Certbot akan:
+      * Memverifikasi bahwa kita memiliki kontrol atas domain tersebut
+      * Mengunduh sertifikat SSL/TLS dari Let's Encrypt
+      * Mengedit file `/etc/nginx/conf.d/gitea.conf` secara otomatis untuk menambahkan konfigurasi HTTPS, termasuk mengarahkan semua lalu lintas HTTP ke HTTPS
+      * Menyiapkan *cron job* atau *systemd timer* untuk memperbarui sertifikat secara otomatis sebelum masa berlakunya habis
+
+Setelah proses ini selesai, Nginx akan dikonfigurasi ulang untuk melayani Gitea melalui port 443 (HTTPS) dengan enkripsi yang valid, dan situs dapat diakses dengan aman melalui `https://gitea-lab.ddns.net`.
+
 
 ## Maintenance
 
