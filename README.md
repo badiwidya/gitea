@@ -28,16 +28,26 @@ Salah satu filosofi desain utama Gitea adalah ringan dan cepat (lightweight and 
 ![Logo Gitea](img/gitea.png)
 *Gambar 1. Logo Resmi Gitea*
 
-Tujuan Proyek
+**Tujuan Proyek**
 
 Pemilihan Gitea sebagai aplikasi web untuk proyek mata kuliah KDJK ini didasari oleh beberapa pertimbangan, yaitu dengan kebutuhan tim pengembangan skala kecil. Tujuan utama projek ini untuk membangun infrastruktur version control yang lebih private, cepat, dan dikelola kelompok kami.
 Berikut adalah alasan kami memilih Gitea:
-1. Data Sovereignty
+1. **Data Sovereignty**,
    Dalam lingkungan pengembangan, biasanya untuk proyek tahap awal, menyimpan kode di server pribadi memberikan lapisan keamanan dan privasi tambahan. Dengan self-hosting Gitea, kami memiliki kebebasan untuk mengatur data repositori, bebas dari potensi keterbatasan layanan pihak ketiga. Konsep ini sesuai dengan materi jaringan di mana kita membangun dan mengelola server kita sendiri.
+2. **Efisiensi Resource dan Cost**,
+   Pada proyek studi ini, kami bekerja dengan sumber daya yang terbatas. Gitea, dengan sifatnya yang light, memungkinkan kami untuk menginstallnya pada Virtual Private Server (VPS) dengan spesifikasi yag rendah tanpa mengorbankan performa. Hal ini mengurangi biaya operasional dibandingkan jika kami harus menyewa server untuk menjalankan pilihan seperti GitLab. Sehingga menunjukkan bahwa jaringan yang reliable tidak selalu membutuhkan infrastruktur yang mahal.
+3. **Kemudahan Instalasi**,
+   Proses instalasi Gitea yang dipermudah dengan Docker membuat kami bisa menyiapkan server dalam waktu singkat. Fokus utama kami adalah pada pemahaman konsep jaringan dan layanan, bukan pada kerumitan administrasi sistemnya. Kami dapat langsung fokus pada konfigurasi jaringan seperti reverse proxy dengan Nginx dan manajemen layanan.
    
-3. Efisiensi Resource dan Cost
-4. Kemudahan Instalasi
-5. Suplemen untuk Belajar Layer Aplikasi
+   
+4. **Suplemen untuk Belajar Layer Aplikasi**,
+   Mengelola Gitea memberikan pengalaman bagi kami dalam administrasi layanan jaringan dari Layer Aplikasi pada model OSI/TCP-IP. Kami menjadi administrator yang bertanggung jawab atas uptime, keamanan, dan pemeliharaan server, tidak sebagai pengguna saja. Pengalaman memberikan pembelajaran yan gsesuai dengan materi-materi yang sudah dibahas di kelas, seperti pada materi Applications and Layered Architectures, pertemuan kedua, di mana Gitea berperan sebagai Application Layer Service.
+
+![TCP/IP](img/OSITCP.jpg)
+Gambar 2. Arsitektur TCP/IP
+
+   
+   
 ## Instalasi
 
 ### Sistem Operasi
