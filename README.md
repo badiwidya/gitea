@@ -327,9 +327,9 @@ Antarmuka Gitea dirancang agar bersih, cepat, dan intuitif, dengan kemiripan yan
 
 ![gitea halaman utama](img/gitea_halaman_utama.png)
 
-- **Dashboard Pengguna:** Setelah login, pengguna akan melihat Dashboard personal. Halaman ini berfungsi sebagai pusat kendali yang menampilkan *feed* aktivitas dari repositori yang diikuti, serta daftar semua repositori yang dapat diakses oleh pengguna.
-
 ![gitea halaman register](img/gitea_halaman_register.png)
+
+- **Dashboard Pengguna:** Setelah login, pengguna akan melihat Dashboard personal. Halaman ini berfungsi sebagai pusat kendali yang menampilkan _feed_ aktivitas dari repositori yang diikuti, serta daftar semua repositori yang dapat diakses oleh pengguna.
 
 ![gitea halaman dasbor](img/gitea_halaman_dasbor.png)
 
@@ -339,7 +339,7 @@ Berikut adalah beberapa fungsi esensial Gitea yang menjadi inti dari alur kerja 
 
 #### 1. Manajemen Repositori (Code Hosting)
 
-Setiap proyek dimulai dengan sebuah repositori. Pengguna dapat membuat repositori baru atau melakukan *fork* dari repositori yang sudah ada. Halaman utama repositori menjadi pusat dari semua aktivitas, menampilkan daftar file dan direktori, riwayat *commit*, serta navigasi ke fitur-fitur lainnya.
+Setiap proyek dimulai dengan sebuah repositori. Pengguna dapat membuat repositori baru atau melakukan _fork_ dari repositori yang sudah ada. Halaman utama repositori menjadi pusat dari semua aktivitas, menampilkan daftar file dan direktori, riwayat _commit_, serta navigasi ke fitur-fitur lainnya.
 
 ![gitea_halaman_code](img/gitea_halaman_code.png)
 
@@ -347,34 +347,42 @@ Setiap proyek dimulai dengan sebuah repositori. Pengguna dapat membuat repositor
 
 Gitea menyediakan dua alat utama untuk manajemen proyek:
 
-- **Issues:** Berfungsi sebagai pusat pelacakan tugas, laporan *bug*, dan permintaan fitur. Setiap *issue* dapat diberi label, ditugaskan ke anggota tim, dan dikelompokkan dalam *milestones*.
+- **Issues:** Berfungsi sebagai pusat pelacakan tugas, laporan _bug_, dan permintaan fitur. Setiap _issue_ dapat diberi label, ditugaskan ke anggota tim, dan dikelompokkan dalam _milestones_.
 
-![gitea_halaman_issue1](img/gitea_halaman_issue1.png)
+![gitea_halaman_issue](img/gitea_halaman_issue.png)
 
-![gitea_halaman_issue2](img/gitea_halaman_issue2.png)
-
-- **Projects (Kanban Boards):** Untuk memvisualisasikan alur kerja, Gitea menyediakan papan Kanban. Tim dapat membuat kolom-kolom seperti "To Do", "In Progress", dan "Done", lalu memindahkan kartu (*issue*) sesuai dengan progres pengerjaannya.
+- **Projects (Kanban Boards):** Untuk memvisualisasikan alur kerja, Gitea menyediakan papan Kanban. Tim dapat membuat kolom-kolom seperti "To Do", "In Progress", dan "Done", lalu memindahkan kartu (_issue_) sesuai dengan progres pengerjaannya.
 
 ![gitea_halaman_project](img/gitea_halaman_project.png)
 
 #### 3. Kolaborasi Kode (Pull Requests)
 
-*Pull Requests* (PR) adalah jantung dari kolaborasi kode. Fitur ini memungkinkan seorang developer untuk mengusulkan perubahan kode dari sebuah *branch* ke *branch* lainnya (biasanya ke `main`). Di dalam PR, tim dapat melakukan diskusi dan *review* kode baris per baris sebelum perubahan tersebut digabungkan, memastikan kualitas kode tetap terjaga.
+_Pull Requests_ (PR) adalah jantung dari kolaborasi kode. Fitur ini memungkinkan seorang developer untuk mengusulkan perubahan kode dari sebuah _branch_ ke _branch_ lainnya (biasanya ke `main`). Di dalam PR, tim dapat melakukan diskusi dan _review_ kode baris per baris sebelum perubahan tersebut digabungkan, memastikan kualitas kode tetap terjaga.
 
 ![gitea_halaman_fork](img/gitea_halaman_fork.png)
 
+#### 4. Gitea Actions
+
+Gitea Actions merupakan fitur _Continuous Integration/Continuous Deployment_ (CI/CD) yang terintegrasi langsung di dalam Gitea. Fitur ini memungkinkan pengguna untuk mengotomatisasi proses seperti pengujian, pembangunan (build), dan deployment aplikasi setiap kali terjadi perubahan pada repositori, misalnya saat melakukan push atau membuat pull request.
+
+Secara konsep, Gitea Actions terinspirasi dari GitHub Actions dan menggunakan format konfigurasi yang serupa, yaitu berkas YAML yang ditempatkan di direktori .gitea/workflows/. Di dalam berkas tersebut, pengguna dapat mendefinisikan workflow yang terdiri dari beberapa job dan step yang akan dijalankan secara otomatis oleh runner.
+
+Walaupun Gitea Actions menggunakan sintaks yang hampir sama dengan GitHub Actions, tingkat kompatibilitasnya belum sepenuhnya 100%. Beberapa fitur seperti matrix builds, artifact caching, dan integrasi dengan GitHub Marketplace belum sepenuhnya tersedia. Namun, untuk kebutuhan dasar seperti build, testing, dan deployment sederhana, Gitea Actions sudah cukup stabil dan fungsional.
+
+![gitea actions](img/gitea_actions.png)
+
 ### Interaksi Pengguna (Alur Kerja Tim)
 
-Berdasarkan hasil riset mengenai praktik terbaik untuk tim kecil, kami mengadopsi alur kerja yang sederhana namun efektif yang disebut **GitHub Flow**. Alur ini memastikan bahwa *branch* utama (`main`) selalu dalam keadaan stabil dan siap untuk di-*deploy*.
+Berdasarkan hasil riset mengenai praktik terbaik untuk tim kecil, kami mengadopsi alur kerja yang sederhana namun efektif yang disebut **GitHub Flow**. Alur ini memastikan bahwa _branch_ utama (`main`) selalu dalam keadaan stabil dan siap untuk di-_deploy_.
 
 Berikut adalah langkah-langkah interaksi pengguna dalam satu siklus pengembangan fitur di Gitea:
 
-1.  **Ambil Tugas dari *Issue Tracker***: Seorang developer membuka halaman **Issues** dan mengambil satu tugas yang akan dikerjakan.
-2.  **Buat *Feature Branch***: Dari halaman repositori, developer membuat *branch* baru dari `main` dengan nama yang deskriptif, misalnya `feature/user-login`.
-3.  **Lakukan Perubahan (Coding & Commit)**: Developer menulis kode di lingkungan lokalnya, melakukan `commit` secara berkala, dan melakukan `push` ke *feature branch* yang baru dibuat di server Gitea.
-4.  **Buka *Pull Request***: Setelah fitur selesai, developer membuka **Pull Request** yang ditujukan ke *branch* `main`. Dalam deskripsi PR, ia akan menautkan *issue* yang relevan (misal: "Closes #12") agar Gitea dapat menutup *issue* tersebut secara otomatis saat PR digabungkan.
-5.  ***Code Review***: Anggota tim lain mendapatkan notifikasi, membuka PR, lalu memberikan komentar dan masukan langsung pada baris-baris kode yang berubah.
-6.  **Merge & Hapus Branch**: Setelah disetujui, PR digabungkan (*merge*) ke dalam *branch* `main`. *Feature branch* yang sudah tidak terpakai kemudian dihapus untuk menjaga kebersihan repositori.
+1.  **Ambil Tugas dari _Issue Tracker_**: Seorang developer membuka halaman **Issues** dan mengambil satu tugas yang akan dikerjakan.
+2.  **Buat _Feature Branch_**: Dari halaman repositori, developer membuat _branch_ baru dari `main` dengan nama yang deskriptif, misalnya `feature/user-login`.
+3.  **Lakukan Perubahan (Coding & Commit)**: Developer menulis kode di lingkungan lokalnya, melakukan `commit` secara berkala, dan melakukan `push` ke _feature branch_ yang baru dibuat di server Gitea.
+4.  **Buka _Pull Request_**: Setelah fitur selesai, developer membuka **Pull Request** yang ditujukan ke _branch_ `main`. Dalam deskripsi PR, ia akan menautkan _issue_ yang relevan (misal: "Closes #12") agar Gitea dapat menutup _issue_ tersebut secara otomatis saat PR digabungkan.
+5.  **_Code Review_**: Anggota tim lain mendapatkan notifikasi, membuka PR, lalu memberikan komentar dan masukan langsung pada baris-baris kode yang berubah.
+6.  **Merge & Hapus Branch**: Setelah disetujui, PR digabungkan (_merge_) ke dalam _branch_ `main`. _Feature branch_ yang sudah tidak terpakai kemudian dihapus untuk menjaga kebersihan repositori.
 
 Alur kerja ini, yang sepenuhnya didukung oleh fitur-fitur Gitea, memastikan setiap perubahan tercatat, terverifikasi, dan menjaga kolaborasi tim tetap terorganisir dan efisien.
 
